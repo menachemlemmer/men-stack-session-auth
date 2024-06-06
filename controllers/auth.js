@@ -8,12 +8,13 @@ router.get("/sign-up", (req, res) => {
 });
 
 router.get("/sign-in", (req, res) => {
-  res.render("auth/sign-in.ejs");
+  res.render("auth/sign-in.ejs", { redirect: req.query });
 });
 
 router.get("/sign-out", (req, res) => {
-  req.session.destroy();
-  res.redirect("/");
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
 });
 
 router.post("/sign-up", async (req, res) => {
@@ -28,7 +29,14 @@ router.post("/sign-up", async (req, res) => {
   req.body.password = hashedPassword;
 
   const user = await User.create(req.body);
-  res.send(`Thank you for signing up, ${user.username}`);
+
+  req.session.user = {
+    username: user.username,
+  };
+
+  req.session.save(() => {
+    res.redirect("/");
+  });
 });
 
 router.post("/sign-in", async (req, res) => {
@@ -46,7 +54,15 @@ router.post("/sign-in", async (req, res) => {
   req.session.user = {
     username: userInDb.username,
   };
-  res.redirect("/");
+  req.session.save(() => {
+    console.log(req);
+    console.log(req.originalUrl);
+    if (req.query.redirectUrl) {
+      res.redirect(req.query.redirectUrl);
+    } else {
+      res.redirect("/");
+    }
+  });
 });
 
 module.exports = router;

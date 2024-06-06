@@ -7,7 +7,10 @@
   </head>
   <body>
     <h1>Sign in to your account!</h1>
-    <form action="/auth/sign-in" method="POST">
+    <form
+      action="/auth/sign-in?redirectUrl=<%= redirect.redirectUrl %>"
+      method="POST"
+    >
       <label for="username">Username:</label>
       <input type="text" name="username" id="username" required />
       <label for="password">Password:</label>
